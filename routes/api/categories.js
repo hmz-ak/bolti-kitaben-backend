@@ -22,6 +22,7 @@ router.put("/:id", validateCategory, async (req, res) => {
   let category = await Category.findById(req.params.id);
   category.name = req.body.name;
   await category.save();
+
   res.send(category);
 });
 
