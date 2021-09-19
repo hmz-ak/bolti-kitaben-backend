@@ -1,7 +1,7 @@
 var express = require("express");
 const multer = require("multer");
 var router = express.Router();
-
+const { Book } = require("../../model/Book");
 //define storage for images
 
 const storage = multer.diskStorage({
@@ -24,8 +24,14 @@ const upload = multer({
   },
 });
 router.post("/", upload.single("image"), async (req, res) => {
-  console.log(req.file);
-  res.send(req.file);
+  const book = new Book();
+  book.title = req.body.title;
+  book.author = req.body.author;
+  book.image = req.file.path;
+  book.description = req.body.description;
+  book.category = req.body.categories;
+  await book.save();
+  res.send("success");
 });
 
 module.exports = router;

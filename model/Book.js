@@ -1,6 +1,5 @@
 var mongoose = require("mongoose");
 var Joi = require("joi");
-var bcrypt = require("bcryptjs");
 
 var booksSchema = mongoose.Schema({
   title: String,
@@ -25,4 +24,4 @@ function validateBooks(data) {
 var Book = mongoose.model("Book", booksSchema);
 
 module.exports.Book = Book;
-module.exports.validateBook = validateBook;
+module.exports.validateBook = validateBooks;
