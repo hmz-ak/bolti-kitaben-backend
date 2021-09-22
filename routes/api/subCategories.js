@@ -8,10 +8,17 @@ router.get("/", async (req, res) => {
   let subCategories = await SubCategory.find();
   res.send(subCategories);
 });
+router.post("/parent", async (req, res) => {
+  console.log(req.body.parent)
+  let subCategories = await SubCategory.find({parent:req.body.parent});
+  console.log(subCategories);
+  res.send(subCategories);
+});
 
 router.post("/",validateSubCategory, async (req, res) => {
   console.log(req.body.name);
   let subCategories = new SubCategory();
+  subCategories.parent = req.body.parent;
   subCategories.name = req.body.name;
   await subCategories.save();
   res.send(subCategories);

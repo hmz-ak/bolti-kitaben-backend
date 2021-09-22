@@ -42,10 +42,30 @@ router.post("/",upload.single("image"),validateBook, async (req, res) => {
   console.log(req.body);
   const book = new Book();
   book.title = req.body.title;
+  book.titleUrdu = req.body.titleUrdu;
   book.author = req.body.author;
   book.image = req.file.filename;
   book.description = req.body.description;
   book.categories= req.body.categories;
+  book.subCategory= req.body.subCategory;
+  book.genre= req.body.genre;
+  await book.save();
+  res.send("success");
+});
+
+router.put("/:id",upload.single("image"),validateBook, async (req, res) => {
+  console.log(req.body);
+  const book = await Book.findById(req.params.id);
+  book.title = req.body.title;
+  book.titleUrdu = req.body.titleUrdu;
+  book.author = req.body.author;
+  if(req.file){
+  book.image = req.file.filename;
+  }
+  book.description = req.body.description;
+  book.categories= req.body.categories;
+  book.subCategory= req.body.subCategory;
+  book.genre= req.body.genre;
   await book.save();
   res.send("success");
 });
