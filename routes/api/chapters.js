@@ -30,10 +30,19 @@ const upload = multer({
 //   res.send(books);
 // })
 
-router.get("/:id",async (req,res)=>{
- 
+
+router.get("/single/:id",async (req,res)=>{
 
   const chapter = await Chapter.findById(req.params.id);
+  // console.log(chapter)
+
+  res.send(chapter);
+})
+router.get("/:id",async (req,res)=>{
+  
+  const chapter = await Chapter.find({book_id:req.params.id});
+  console.log(chapter)
+
   res.send(chapter);
 })
 
