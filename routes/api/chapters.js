@@ -3,6 +3,7 @@ const multer = require("multer");
 var router = express.Router();
 const { Chapter } = require("../../model/Chapter");
 const validateChapter  = require("../../middleware/validateChapter");
+const auth  = require("../../middleware/auth");
 //define storage for images
 
 const storage = multer.diskStorage({
@@ -21,7 +22,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: {
-    fieldSize: 1024 * 1024 * 100,
+    fieldSize: 1024 * 1024 * 1000000,
   },
 });
 
@@ -31,14 +32,14 @@ const upload = multer({
 // })
 
 
-router.get("/single/:id",async (req,res)=>{
+router.get("/single/:id",auth,async (req,res)=>{
 
   const chapter = await Chapter.findById(req.params.id);
   // console.log(chapter)
 
   res.send(chapter);
 })
-router.get("/:id",async (req,res)=>{
+router.get("/:id",auth,async (req,res)=>{
   
   const chapter = await Chapter.find({book_id:req.params.id});
   console.log(chapter)
@@ -47,7 +48,7 @@ router.get("/:id",async (req,res)=>{
 })
 
 
-router.post("/",upload.single("audio"),validateChapter, async (req, res) => {
+router.post("/",auth,upload.single("audio"),validateChapter, async (req, res) => {
   console.log(req.body);
 
   const chapter = new Chapter();

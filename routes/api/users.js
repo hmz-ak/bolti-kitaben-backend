@@ -5,6 +5,7 @@ var bcrypt = require("bcryptjs");
 var _ = require("lodash");
 var jwt = require("jsonwebtoken");
 var config = require("config");
+
 router.post("/register", async (req, res) => {
   var email = req.body.email;
   let user = await User.findOne({ email });
@@ -19,6 +20,7 @@ router.post("/register", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
+  console.log(req.body);
   let user = await User.findOne({ email: req.body.email });
   if (!user) return res.status(401).send("This email is not registered");
   const isValid = await bcrypt.compare(req.body.password, user.password);

@@ -30,12 +30,12 @@ router.get("/",async (req,res)=>{
   res.send(books);
 })
 
-router.get("/:id",async (req,res)=>{
+// router.get("/:id",async (req,res)=>{
  
 
-  const books = await Book.findById(req.params.id);
-  res.send(books);
-})
+//   const books = await Book.findById(req.params.id);
+//   res.send(books);
+// })
 
 
 router.post("/",upload.single("image"),validateBook, async (req, res) => {
