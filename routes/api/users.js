@@ -11,7 +11,8 @@ router.post("/register", async (req, res) => {
   let user = await User.findOne({ email });
   if (user) return res.status(400).send("User with this email already exist");
   user = new User();
-  user.name = req.body.name;
+  user.first_name = req.body.first_name;
+  user.last_name = req.body.last_name;
   user.email = req.body.email;
   user.password = req.body.password;
   await user.generatePasswordHash();
@@ -26,7 +27,7 @@ router.post("/login", async (req, res) => {
   const isValid = await bcrypt.compare(req.body.password, user.password);
   if (!isValid) return res.status(401).send("Password incorrect");
   var token = jwt.sign(
-    { _id: user._id, name: user.name },
+    { _id: user._id, first_name: user.first_name, last_name: user.last_name, email: user.email },
     config.get("jwtPrivateKey")
   );
   res.send(token);
