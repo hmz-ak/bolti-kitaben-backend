@@ -61,6 +61,12 @@ router.post("/",auth,upload.single("audio"),validateChapter, async (req, res) =>
   res.send(chapter);
 });
 
+router.delete("/:id",auth, async (req, res) => {
+  let chapter = await Chapter.findByIdAndRemove(req.params.id);
+  res.send(chapter);
+});
+
+
 // router.put("/:id",upload.single("image"),validateBook, async (req, res) => {
 //   console.log(req.body);
 //   const book = await Book.findById(req.params.id);

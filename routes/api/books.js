@@ -45,7 +45,10 @@ router.post("/",auth,upload.single("image"),validateBook, async (req, res) => {
   book.title = req.body.title;
   book.titleUrdu = req.body.titleUrdu;
   book.author = req.body.author;
+  if(req.file){
   book.image = req.file.filename;
+
+  }
   book.description = req.body.description;
   book.categories= req.body.categories;
   book.subCategory= req.body.subCategory;
@@ -69,6 +72,11 @@ router.put("/:id",auth,upload.single("image"),validateBook, async (req, res) => 
   book.genre= req.body.genre;
   await book.save();
   res.send("success");
+});
+
+router.delete("/:id",auth, async (req, res) => {
+  let book = await Book.findByIdAndRemove(req.params.id);
+  res.send(book);
 });
 
 

@@ -53,4 +53,23 @@ router.post("/login_google", async (req, res) => {
   res.send(token);
 });
 
+router.post("/login_facebook", async (req, res) => {
+  let user = await User.findOne({ email: req.body.email });
+  if (!user) {
+  user = new User();
+  user.first_name = req.body.first_name;
+  user.last_name = req.body.last_name;
+  user.authType="Facebook",
+  user.email = req.body.email;
+  user.password = req.body.token;
+  await user.generatePasswordHash();
+  await user.save();
+  } 
+  var token = jwt.sign(
+    { _id: user._id, first_name: user.first_name, last_name: user.last_name, email: user.email },
+    config.get("jwtPrivateKey")
+  );
+  res.send(token);
+});
+
 module.exports = router;
