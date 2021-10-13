@@ -22,10 +22,30 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   console.log(req.body);
+
   let user = await User.findOne({ email: req.body.email });
   if (!user) return res.status(401).send("This email is not registered");
   const isValid = await bcrypt.compare(req.body.password, user.password);
   if (!isValid) return res.status(401).send("Password incorrect");
+  var token = jwt.sign(
+    { _id: user._id, first_name: user.first_name, last_name: user.last_name, email: user.email },
+    config.get("jwtPrivateKey")
+  );
+  res.send(token);
+});
+
+router.post("/login_google", async (req, res) => {
+  let user = await User.findOne({ email: req.body.result.email });
+  if (!user) {
+  user = new User();
+  user.first_name = req.body.result.givenName;
+  user.last_name = req.body.result.familyName;
+  user.authType="Google",
+  user.email = req.body.result.email;
+  user.password = req.body.token;
+  await user.generatePasswordHash();
+  await user.save();
+  } 
   var token = jwt.sign(
     { _id: user._id, first_name: user.first_name, last_name: user.last_name, email: user.email },
     config.get("jwtPrivateKey")

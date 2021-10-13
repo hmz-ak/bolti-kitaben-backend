@@ -3,6 +3,7 @@ const multer = require("multer");
 var router = express.Router();
 const { Book } = require("../../model/Book");
 const validateBook  = require("../../middleware/validateBook");
+const auth  = require("../../middleware/auth");
 //define storage for images
 
 const storage = multer.diskStorage({
@@ -25,12 +26,12 @@ const upload = multer({
   },
 });
 
-router.get("/",async (req,res)=>{
+router.get("/",auth,async (req,res)=>{
   const books = await Book.find();
   res.send(books);
 })
 
-router.get("/:id",async (req,res)=>{
+router.get("/:id",auth,async (req,res)=>{
  
 
   const books = await Book.findById(req.params.id);
@@ -38,7 +39,7 @@ router.get("/:id",async (req,res)=>{
 })
 
 
-router.post("/",upload.single("image"),validateBook, async (req, res) => {
+router.post("/",auth,upload.single("image"),validateBook, async (req, res) => {
   console.log(req.body);
   const book = new Book();
   book.title = req.body.title;
@@ -53,7 +54,7 @@ router.post("/",upload.single("image"),validateBook, async (req, res) => {
   res.send("success");
 });
 
-router.put("/:id",upload.single("image"),validateBook, async (req, res) => {
+router.put("/:id",auth,upload.single("image"),validateBook, async (req, res) => {
   console.log(req.body);
   const book = await Book.findById(req.params.id);
   book.title = req.body.title;

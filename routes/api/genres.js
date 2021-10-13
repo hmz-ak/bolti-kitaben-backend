@@ -1,15 +1,16 @@
   var express = require("express");
 var { Genre } = require("../../model/Genre");
 var validateGenre = require("../../middleware/validateGenre");
+const auth  = require("../../middleware/auth");
 
 var router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/",auth, async (req, res) => {
   let grenres = await Genre.find();
   res.send(grenres);
 });
 
-router.post("/",validateGenre, async (req, res) => {
+router.post("/",auth,validateGenre, async (req, res) => {
   console.log(req.body.name);
   let genre = new Genre();
   genre.name = req.body.name;
@@ -17,7 +18,7 @@ router.post("/",validateGenre, async (req, res) => {
   res.send(genre);
 });
 
-router.put("/:id",validateGenre, async (req, res) => {
+router.put("/:id",auth,validateGenre, async (req, res) => {
   console.log(req.body);
   let genre = await Genre.findById(req.params.id);
   genre.name = req.body.name;
@@ -26,7 +27,7 @@ router.put("/:id",validateGenre, async (req, res) => {
   res.send(genre);
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id",auth, async (req, res) => {
   let genre = await Genre.findByIdAndRemove(req.params.id);
   res.send(genre);
 });
