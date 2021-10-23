@@ -7,7 +7,7 @@ var categorySchema = mongoose.Schema({
 
 function validateData(data) {
   var schema = Joi.object({
-    name: Joi.string().required(),
+    name: Joi.string(),
   });
   return schema.validate(data);
 }

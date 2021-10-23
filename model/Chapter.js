@@ -10,7 +10,9 @@ var chaptersSchema = mongoose.Schema({
   ],
   title: String,
   titleUrdu: String,
+  tags: [],
   audio: String,
+
 });
 
 //for sign up
@@ -19,7 +21,8 @@ function validateChapters(data) {
   var schema = Joi.object({
     book_id: Joi.string(),
     title: Joi.string().required(),
-    titleUrdu: Joi.string().required(),
+    titleUrdu: Joi.optional(),
+    tags:Joi.optional(),
     audio: Joi.string(),
   });
   return schema.validate(data);

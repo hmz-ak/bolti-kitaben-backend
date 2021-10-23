@@ -5,6 +5,7 @@ var bcrypt = require("bcryptjs");
 var _ = require("lodash");
 var jwt = require("jsonwebtoken");
 var config = require("config");
+const auth  = require("../../middleware/auth");
 
 router.post("/register", async (req, res) => {
   var email = req.body.email;
@@ -31,7 +32,12 @@ router.post("/login", async (req, res) => {
     { _id: user._id, first_name: user.first_name, last_name: user.last_name, email: user.email },
     config.get("jwtPrivateKey")
   );
-  res.send(token);
+  console.log(user);
+  let user_data = {
+    token,
+    role:user.role,
+  }
+  res.send(user_data);
 });
 
 router.post("/login_google", async (req, res) => {
@@ -52,6 +58,11 @@ router.post("/login_google", async (req, res) => {
   );
   res.send(token);
 });
+
+router.post("/login_verify",auth,async (req,res)=>{
+  console.log("success");
+  res.return("success");
+})
 
 router.post("/login_facebook", async (req, res) => {
   let user = await User.findOne({ email: req.body.email });

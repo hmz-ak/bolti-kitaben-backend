@@ -44,8 +44,16 @@ router.post("/",auth,upload.single("image"),validateBook, async (req, res) => {
   const book = new Book();
   book.title = req.body.title;
   book.titleUrdu = req.body.titleUrdu;
+  book.narrator = req.body.narrator;
+  book.contributor = req.body.contributor;
   book.author = req.body.author;
+  if(req.user.role === 'admin'){
+    book.approved = true;
+  }else{
+    book.approved = false;
+  }
   if(req.file){
+    
   book.image = req.file.filename;
 
   }
@@ -61,6 +69,8 @@ router.put("/:id",auth,upload.single("image"),validateBook, async (req, res) => 
   console.log(req.body);
   const book = await Book.findById(req.params.id);
   book.title = req.body.title;
+  book.narrator = req.body.narrator;
+  book.contributor = req.body.contributor;
   book.titleUrdu = req.body.titleUrdu;
   book.author = req.body.author;
   if(req.file){

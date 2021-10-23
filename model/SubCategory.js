@@ -9,7 +9,7 @@ var subCategorySchema = mongoose.Schema({
 function validateData(data) {
   var schema = Joi.object({
     parent: Joi.string().required(),
-    name: Joi.string().required(),
+    name: Joi.optional(),
   });
   return schema.validate(data);
 }

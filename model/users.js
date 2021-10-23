@@ -3,9 +3,14 @@ var Joi = require("joi");
 var bcrypt = require("bcryptjs");
 
 var userSchema = mongoose.Schema({
-  name: String,
+  first_name: String,
+  last_name:String,
   email: String,
   password: String,
+  authType : {
+    type:String,
+    default: "Manual"
+  },
   role: {
     type: String,
     default: "user",
@@ -19,7 +24,8 @@ userSchema.methods.generatePasswordHash = async function () {
 //for sign up
 function validateUser(data) {
   var schema = Joi.object({
-    name: Joi.string().min(3).max(12).required(),
+    first_name: Joi.string().min(3).max(12).required(),
+    last_name: Joi.string().min(3).max(12).required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(3).max(10).required(),
   });
