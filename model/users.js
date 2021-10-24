@@ -3,6 +3,7 @@ var Joi = require("joi");
 var bcrypt = require("bcryptjs");
 
 var userSchema = mongoose.Schema({
+  
   first_name: String,
   last_name:String,
   email: String,

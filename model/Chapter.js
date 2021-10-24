@@ -8,6 +8,12 @@ var chaptersSchema = mongoose.Schema({
       ref: "Book",
     },
   ],
+  user_id: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   title: String,
   titleUrdu: String,
   tags: [],
@@ -20,6 +26,7 @@ function validateChapters(data) {
 
   var schema = Joi.object({
     book_id: Joi.string(),
+    user_id:Joi.optional(),
     title: Joi.string().required(),
     titleUrdu: Joi.optional(),
     tags:Joi.optional(),

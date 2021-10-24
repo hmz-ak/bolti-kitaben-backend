@@ -52,6 +52,7 @@ router.post("/",auth,upload.single("audio"),validateChapter, async (req, res) =>
   console.log(req.body);
 
   const chapter = new Chapter();
+  chapter.user_id = req.user._id;
   chapter.book_id = req.body.book_id;
   chapter.title = req.body.title;
   chapter.tags = req.body.tags;

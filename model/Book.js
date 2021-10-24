@@ -2,6 +2,12 @@ var mongoose = require("mongoose");
 var Joi = require("joi");
 
 var booksSchema = mongoose.Schema({
+  user_id: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   title: String,
   titleUrdu: {
     type: String,
@@ -22,6 +28,7 @@ var booksSchema = mongoose.Schema({
 function validateBooks(data) {
 
   var schema = Joi.object({
+    user_id:Joi.optional(),
     title: Joi.string().required(),
     titleUrdu: Joi.optional(),
     narrator: Joi.optional(),

@@ -31,6 +31,20 @@ router.get("/",auth,async (req,res)=>{
   res.send(books);
 })
 
+//Show all the stories specific to person
+router.get("/myaudiobooks", auth, async (req, res) => {
+  var book = await Book.find({ user_id: req.user._id }).sort({
+    date: "desc",
+  });
+  console.log(book);
+  if (book.length == 0) {
+    book = null;
+  }
+  var user = req.user;
+  res.send(book);
+});
+
+
 router.get("/:id",auth,async (req,res)=>{
  
 
@@ -42,6 +56,7 @@ router.get("/:id",auth,async (req,res)=>{
 router.post("/",auth,upload.single("image"),validateBook, async (req, res) => {
   console.log(req.body);
   const book = new Book();
+  book.user_id = req.user._id;
   book.title = req.body.title;
   book.titleUrdu = req.body.titleUrdu;
   book.narrator = req.body.narrator;
@@ -62,8 +77,10 @@ router.post("/",auth,upload.single("image"),validateBook, async (req, res) => {
   book.subCategory= req.body.subCategory;
   book.genre= req.body.genre;
   await book.save();
-  res.send("success");
+  res.send(book);
 });
+
+
 
 router.put("/:id",auth,upload.single("image"),validateBook, async (req, res) => {
   console.log(req.body);
