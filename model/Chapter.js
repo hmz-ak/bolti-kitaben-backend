@@ -15,6 +15,7 @@ var chaptersSchema = mongoose.Schema({
     },
   ],
   title: String,
+  approved:Boolean,
   titleUrdu: String,
   tags: [],
   audio: String,

@@ -2,6 +2,7 @@ var express = require("express");
 const multer = require("multer");
 var router = express.Router();
 const { Chapter } = require("../../model/Chapter");
+
 const validateChapter  = require("../../middleware/validateChapter");
 const auth  = require("../../middleware/auth");
 //define storage for images
@@ -31,7 +32,13 @@ const upload = multer({
 //   res.send(books);
 // })
 
+router.get("/",auth,async (req,res)=>{
 
+  const chapter = await Chapter.find();
+  
+
+  res.send(chapter);
+})
 router.get("/single/:id",auth,async (req,res)=>{
 
   const chapter = await Chapter.findById(req.params.id);
@@ -55,6 +62,12 @@ router.post("/",auth,upload.single("audio"),validateChapter, async (req, res) =>
   chapter.user_id = req.user._id;
   chapter.book_id = req.body.book_id;
   chapter.title = req.body.title;
+  if(req.user.role === 'admin'){
+    chapter.approved = true;
+  }else{
+    chapter.approved = false;
+  }
+  
   chapter.tags = req.body.tags;
   chapter.titleUrdu = req.body.titleUrdu;
   chapter.audio = req.file.filename;
@@ -62,7 +75,12 @@ router.post("/",auth,upload.single("audio"),validateChapter, async (req, res) =>
   await chapter.save();
   res.send(chapter);
 });
-
+router.put('/approve/:id',auth,async (req,res)=>{
+  const chapter = await Chapter.findById(req.params.id);
+  chapter.approved = true;
+  await chapter.save();
+  res.send(chapter);
+})
 router.delete("/:id",auth, async (req, res) => {
   let chapter = await Chapter.findByIdAndRemove(req.params.id);
   res.send(chapter);

@@ -81,7 +81,12 @@ router.post("/",auth,upload.single("image"),validateBook, async (req, res) => {
 });
 
 
-
+router.put('/approve/:id',auth,async (req,res)=>{
+  const book = await Book.findById(req.params.id);
+  book.approved = true;
+  await book.save();
+  res.send(book);
+})
 router.put("/:id",auth,upload.single("image"),validateBook, async (req, res) => {
   console.log(req.body);
   const book = await Book.findById(req.params.id);

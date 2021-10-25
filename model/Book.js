@@ -16,6 +16,7 @@ var booksSchema = mongoose.Schema({
   narrator:String,
   contributor:String,
   approved:Boolean,
+  chapter_approval:Boolean,
   author: String,
   categories: String,
   subCategory: String,
