@@ -7,6 +7,27 @@ var jwt = require("jsonwebtoken");
 var config = require("config");
 const auth  = require("../../middleware/auth");
 
+router.get('/',async(req,res)=>{
+  const users = await User.find();
+  res.send(users);
+});
+
+router.put('/:id',async(req,res)=>{
+  const user = await User.findById(req.params.id);
+  console.log(typeof req.body.role);
+  if(req.body.role === "user" || req.body.role === "admin"){
+    user.role = req.body.role;
+  
+    await user.save();
+    res.send(user);
+  
+  }else{
+   return res.status(400).send("You can either type user or admin")
+    
+  }
+ 
+});
+
 router.post("/register", async (req, res) => {
   var email = req.body.email;
   let user = await User.findOne({ email });
