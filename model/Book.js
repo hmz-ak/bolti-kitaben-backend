@@ -34,12 +34,12 @@ function validateBooks(data) {
     titleUrdu: Joi.optional(),
     narrator: Joi.optional(),
     contributor: Joi.optional(),
-    author: Joi.string().required(),
+    author: Joi.optional(),
     categories: Joi.optional(),
     subCategory: Joi.optional(),
     genre: Joi.optional(),
     description: Joi.string().required(),
-    image: Joi.optional(),
+    image: Joi.string(),
   });
   return schema.validate(data);
 }

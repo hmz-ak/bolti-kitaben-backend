@@ -10,6 +10,11 @@ router.get("/",auth, async (req, res) => {
   res.send(grenres);
 });
 
+router.get("/names",auth, async (req, res) => {
+  let grenres = await Genre.find({}, 'name -_id');
+  res.send(grenres);
+});
+
 router.post("/",auth,validateGenre, async (req, res) => {
   console.log(req.body.name);
   let genre = new Genre();

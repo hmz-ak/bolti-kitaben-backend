@@ -2,10 +2,10 @@ var express = require("express");
 const multer = require("multer");
 var router = express.Router();
 const { Book } = require("../../model/Book");
-const validateBook  = require("../../middleware/validateBook");
-const auth  = require("../../middleware/auth");
-//define storage for images
+const validateBook = require("../../middleware/validateBook");
+const auth = require("../../middleware/auth");
 
+//define storage for images
 const storage = multer.diskStorage({
   //destination for files
   destination: function (request, file, callback) {
@@ -26,10 +26,72 @@ const upload = multer({
   },
 });
 
-router.get("/",auth,async (req,res)=>{
+router.get("/", auth, async (req, res) => {
   const books = await Book.find();
   res.send(books);
-})
+});
+router.get("/unapproved_books", auth, async (req, res) => {
+  const books = await Book.find({approved:false});
+  res.send(books);
+});
+
+//get searched book
+router.post("/searched", auth, async (req, res) => {
+  console.log("reached here");
+  console.log(req.body);
+  var book = await Book.find({ title: req.body.searchedVal });
+  console.log(book);
+  res.send(book);
+});
+
+//get filtered books
+router.post("/filtered", auth, async (req, res) => {
+  console.log("reached here");
+  console.log(req.body);
+  var book = await Book.find(
+    req.body.parentVal && req.body.subVal && req.body.genreVal
+      ? {
+          categories: req.body.parentVal,
+          subCategory: req.body.subVal,
+          genre: req.body.genreVal,
+        }
+      : req.body.parentVal && req.body.subVal == "" && req.body.genreVal == ""
+      ? {
+          categories: req.body.parentVal,
+        }
+      : req.body.parentVal == "" && req.body.subVal && req.body.genreVal == ""
+      ? {
+          subCategory: req.body.subVal,
+        }
+      : req.body.parentVal == "" && req.body.subVal == "" && req.body.genreVal
+      ? {
+          genre: req.body.genreVal,
+        }
+      : req.body.parentVal && req.body.subVal && req.body.genreVal == ""
+      ? {
+          categories: req.body.parentVal,
+          subCategory: req.body.subVal,
+        }
+      : req.body.parentVal && req.body.subVal == "" && req.body.genreVal
+      ? {
+          categories: req.body.parentVal,
+          genre: req.body.genreVal,
+        }
+      : req.body.parentVal == "" && req.body.subVal && req.body.genreVal
+      ? {
+          subCategory: req.body.subVal,
+          genre: req.body.genreVal,
+        }
+      : req.body.parentVal == "" && req.body.subVal && req.body.genreVal
+      ? {
+          subCategory: req.body.subVal,
+          genre: req.body.genreVal,
+        }
+      : ""
+  );
+  console.log(book);
+  res.send(book);
+});
 
 //Show all the stories specific to person
 router.get("/myaudiobooks", auth, async (req, res) => {
@@ -44,74 +106,78 @@ router.get("/myaudiobooks", auth, async (req, res) => {
   res.send(book);
 });
 
-
-router.get("/:id",auth,async (req,res)=>{
- 
-
+router.get("/:id", auth, async (req, res) => {
   const books = await Book.findById(req.params.id);
   res.send(books);
-})
-
-
-router.post("/",auth,upload.single("image"),validateBook, async (req, res) => {
-  console.log(req.body);
-  const book = new Book();
-  book.user_id = req.user._id;
-  book.title = req.body.title;
-  book.titleUrdu = req.body.titleUrdu;
-  book.narrator = req.body.narrator;
-  book.contributor = req.body.contributor;
-  book.author = req.body.author;
-  if(req.user.role === 'admin'){
-    book.approved = true;
-  }else{
-    book.approved = false;
-  }
-  if(req.file){
-    
-  book.image = req.file.filename;
-
-  }
-  book.description = req.body.description;
-  book.categories= req.body.categories;
-  book.subCategory= req.body.subCategory;
-  book.genre= req.body.genre;
-  await book.save();
-  res.send(book);
 });
 
+router.post(
+  "/",
+  auth,
+  upload.single("image"),
+  validateBook,
+  async (req, res) => {
+    console.log(req.body);
+    const book = new Book();
+    book.user_id = req.user._id;
+    book.title = req.body.title;
+    book.titleUrdu = req.body.titleUrdu;
+    book.narrator = req.body.narrator;
+    book.contributor = req.body.contributor;
+    book.author = req.body.author;
+    if (req.user.role === "admin") {
+      book.approved = true;
+    } else {
+      book.approved = false;
+    }
+    if (req.file) {
+      book.image = req.file.filename;
+    }
+    book.description = req.body.description;
+    book.categories = req.body.categories;
+    book.subCategory = req.body.subCategory;
+    book.genre = req.body.genre;
+    await book.save();
+    res.send(book);
+  }
+);
 
-router.put('/approve/:id',auth,async (req,res)=>{
+router.put("/approve/:id", auth, async (req, res) => {
   const book = await Book.findById(req.params.id);
   book.approved = true;
   await book.save();
   res.send(book);
-})
-router.put("/:id",auth,upload.single("image"),validateBook, async (req, res) => {
-  console.log(req.body);
-  const book = await Book.findById(req.params.id);
-  book.title = req.body.title;
-  book.narrator = req.body.narrator;
-  book.contributor = req.body.contributor;
-  book.titleUrdu = req.body.titleUrdu;
-  book.author = req.body.author;
-  if(req.file){
-  book.image = req.file.filename;
-  }
-  book.description = req.body.description;
-  book.categories= req.body.categories;
-  book.subCategory= req.body.subCategory;
-  book.genre= req.body.genre;
-  await book.save();
-  res.send("success");
 });
 
-router.delete("/:id",auth, async (req, res) => {
+
+router.put(
+  "/:id",
+  auth,
+  upload.single("image"),
+  validateBook,
+  async (req, res) => {
+    console.log(req.body);
+    const book = await Book.findById(req.params.id);
+    book.title = req.body.title;
+    book.narrator = req.body.narrator;
+    book.contributor = req.body.contributor;
+    book.titleUrdu = req.body.titleUrdu;
+    book.author = req.body.author;
+    if (req.file) {
+      book.image = req.file.filename;
+    }
+    book.description = req.body.description;
+    book.categories = req.body.categories;
+    book.subCategory = req.body.subCategory;
+    book.genre = req.body.genre;
+    await book.save();
+    res.send("success");
+  }
+);
+
+router.delete("/:id", auth, async (req, res) => {
   let book = await Book.findByIdAndRemove(req.params.id);
   res.send(book);
 });
-
-
-
 
 module.exports = router;

@@ -34,7 +34,7 @@ const upload = multer({
 
 router.get("/",auth,async (req,res)=>{
 
-  const chapter = await Chapter.find();
+  const chapter = await Chapter.find({approved:false});
   
 
   res.send(chapter);
@@ -75,6 +75,7 @@ router.post("/",auth,upload.single("audio"),validateChapter, async (req, res) =>
   await chapter.save();
   res.send(chapter);
 });
+
 router.put('/approve/:id',auth,async (req,res)=>{
   const chapter = await Chapter.findById(req.params.id);
   chapter.approved = true;
@@ -87,22 +88,19 @@ router.delete("/:id",auth, async (req, res) => {
 });
 
 
-// router.put("/:id",upload.single("image"),validateBook, async (req, res) => {
-//   console.log(req.body);
-//   const book = await Book.findById(req.params.id);
-//   book.title = req.body.title;
-//   book.titleUrdu = req.body.titleUrdu;
-//   book.author = req.body.author;
-//   if(req.file){
-//   book.image = req.file.filename;
-//   }
-//   book.description = req.body.description;
-//   book.categories= req.body.categories;
-//   book.subCategory= req.body.subCategory;
-//   book.genre= req.body.genre;
-//   await book.save();
-//   res.send("success");
-// });
+router.put("/:id",auth,upload.single("audio"),validateChapter, async (req, res) => {
+  console.log(req.body);
+  const chapter = await Chapter.findById(req.params.id);
+  chapter.title = req.body.title;
+  chapter.titleUrdu = req.body.titleUrdu;
+  chapter.tags = req.body.tags;
+  if(req.file){
+  chapter.audio = req.file.filename;
+  }
+
+  await chapter.save();
+  res.send(chapter);
+});
 
 
 
