@@ -17,7 +17,6 @@ router.put('/:id',async(req,res)=>{
   console.log(typeof req.body.role);
   if(req.body.role === "user" || req.body.role === "admin"){
     user.role = req.body.role;
-  
     await user.save();
     res.send(user);
   

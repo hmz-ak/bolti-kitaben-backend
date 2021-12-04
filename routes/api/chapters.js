@@ -2,6 +2,7 @@ var express = require("express");
 const multer = require("multer");
 var router = express.Router();
 const { Chapter } = require("../../model/Chapter");
+// const { Book } = require("../../model/Book");
 
 const validateChapter  = require("../../middleware/validateChapter");
 const auth  = require("../../middleware/auth");
@@ -56,7 +57,8 @@ router.get("/:id",auth,async (req,res)=>{
 
 
 router.post("/",auth,upload.single("audio"),validateChapter, async (req, res) => {
-  console.log(req.body);
+  // const books = await Book.findById(req.body.book_id);
+  // console.log("added new",books);
 
   const chapter = new Chapter();
   chapter.user_id = req.user._id;
@@ -64,8 +66,10 @@ router.post("/",auth,upload.single("audio"),validateChapter, async (req, res) =>
   chapter.title = req.body.title;
   if(req.user.role === 'admin'){
     chapter.approved = true;
+    // books.approved=true;
   }else{
     chapter.approved = false;
+    // books.approved=false;
   }
   
   chapter.tags = req.body.tags;
@@ -73,6 +77,7 @@ router.post("/",auth,upload.single("audio"),validateChapter, async (req, res) =>
   chapter.audio = req.file.filename;
   
   await chapter.save();
+ 
   res.send(chapter);
 });
 
@@ -96,6 +101,11 @@ router.put("/:id",auth,upload.single("audio"),validateChapter, async (req, res) 
   chapter.tags = req.body.tags;
   if(req.file){
   chapter.audio = req.file.filename;
+  }
+  if(req.user.role === 'admin'){
+    chapter.approved = true;
+  }else{
+    chapter.approved = false;
   }
 
   await chapter.save();

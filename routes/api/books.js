@@ -2,6 +2,7 @@ var express = require("express");
 const multer = require("multer");
 var router = express.Router();
 const { Book } = require("../../model/Book");
+const { User } = require("../../model/users");
 const validateBook = require("../../middleware/validateBook");
 const auth = require("../../middleware/auth");
 
@@ -27,11 +28,18 @@ const upload = multer({
 });
 
 router.get("/", auth, async (req, res) => {
-  const books = await Book.find();
+  const books = await Book.find({approved:true});
   res.send(books);
 });
 router.get("/unapproved_books", auth, async (req, res) => {
-  const books = await Book.find({approved:false});
+  const books = await Book.find({approved:false,disapproved:false});
+  res.send(books);
+});
+
+router.get("/people_contributions", auth, async (req, res) => {
+
+  const books = await Book.find({contributionType:"user"});
+  
   res.send(books);
 });
 
@@ -99,6 +107,49 @@ router.get("/myaudiobooks", auth, async (req, res) => {
     date: "desc",
   });
   console.log(book);
+  console.log("end");
+  if (book.length == 0) {
+    book = null;
+  }
+  var user = req.user;
+  res.send(book);
+});
+
+//Show all the disapproved stories specific to person
+router.get("/myaudiobooks_disapproved", auth, async (req, res) => {
+  var book = await Book.find({ user_id: req.user._id, disapproved:true }).sort({
+    date: "desc",
+  }).limit(9);
+  console.log(book);
+  console.log("end");
+  if (book.length == 0) {
+    book = null;
+  }
+  var user = req.user;
+  res.send(book);
+});
+
+//Show all the unapproved stories specific to person
+router.get("/myaudiobooks_unapproved", auth, async (req, res) => {
+  var book = await Book.find({ user_id: req.user._id, approved:false,disapproved:false }).sort({
+    date: "desc",
+  }).limit(9);
+  console.log(book);
+  console.log("end");
+  if (book.length == 0) {
+    book = null;
+  }
+  var user = req.user;
+  res.send(book);
+});
+
+//Show all the approved stories specific to person
+router.get("/myaudiobooks_approved", auth, async (req, res) => {
+  var book = await Book.find({ user_id: req.user._id, approved:true }).sort({
+    date: "desc",
+  });
+  console.log(book);
+  console.log("end");
   if (book.length == 0) {
     book = null;
   }
@@ -127,8 +178,11 @@ router.post(
     book.author = req.body.author;
     if (req.user.role === "admin") {
       book.approved = true;
+      book.contributionType = "admin";
     } else {
       book.approved = false;
+      book.disapproved = false;
+      book.contributionType = "user";
     }
     if (req.file) {
       book.image = req.file.filename;
@@ -149,6 +203,15 @@ router.put("/approve/:id", auth, async (req, res) => {
   res.send(book);
 });
 
+router.put("/disapprove/:id", auth, async (req, res) => {
+  const book = await Book.findById(req.params.id);
+  
+  book.disapproved = true;
+  book.disapproval_message = req.body.message;
+  await book.save();
+  res.send(book);
+});
+
 
 router.put(
   "/:id",
@@ -163,8 +226,16 @@ router.put(
     book.contributor = req.body.contributor;
     book.titleUrdu = req.body.titleUrdu;
     book.author = req.body.author;
+   
     if (req.file) {
       book.image = req.file.filename;
+    }
+    if (req.user.role === "admin") {
+      book.approved = true;
+      book.disapproved = false;
+    } else {
+      book.approved = false;
+      book.disapproved = false;
     }
     book.description = req.body.description;
     book.categories = req.body.categories;
