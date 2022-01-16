@@ -14,6 +14,9 @@ var chaptersSchema = mongoose.Schema({
       ref: "User",
     },
   ],
+  previous_chapter: [],
+  next_chapter: [],
+  
   title: String,
   approved:Boolean,
   titleUrdu: String,
@@ -28,6 +31,8 @@ function validateChapters(data) {
   var schema = Joi.object({
     book_id: Joi.string(),
     user_id:Joi.optional(),
+    previous_chapter: Joi.optional(),
+    next_chapter: Joi.optional(),
     title: Joi.string().required(),
     titleUrdu: Joi.optional(),
     tags:Joi.optional(),

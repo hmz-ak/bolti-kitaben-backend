@@ -18,17 +18,25 @@ router.post("/parent",auth, async (req, res) => {
 
 router.post("/",auth,validateSubCategory, async (req, res) => {
   console.log(req.body.name);
+  let check_existing = await SubCategory.find({name:req.body.name.toLowerCase()});
+  if(check_existing.length>0){
+    return res.status(400).send("this sub-category already exist");
+  }
   let subCategories = new SubCategory();
   subCategories.parent = req.body.parent;
-  subCategories.name = req.body.name;
+  subCategories.name = req.body.name.toLowerCase();
   await subCategories.save();
   res.send(subCategories);
 });
 
 router.put("/:id",auth,validateSubCategory, async (req, res) => {
   console.log(req.body);
+  let check_existing = await SubCategory.find({name:req.body.name.toLowerCase()});
+  if(check_existing.length>0){
+    return res.status(400).send("this sub-category already exist");
+  }
   let subCategory = await SubCategory.findById(req.params.id);
-  subCategory.name = req.body.name;
+  subCategory.name = req.body.name.toLowerCase();
   await subCategory.save();
 
   res.send(subCategory);

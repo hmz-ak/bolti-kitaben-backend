@@ -27,35 +27,40 @@ const upload = multer({
   },
 });
 
-router.get("/", auth, async (req, res) => {
-  const books = await Book.find({approved:true});
+router.get("/", async (req, res) => {
+  const books = await Book.find({ approved: true });
   res.send(books);
 });
-router.get("/unapproved_books", auth, async (req, res) => {
-  const books = await Book.find({approved:false,disapproved:false});
+router.get("/unapproved_books", async (req, res) => {
+  const books = await Book.find({ approved: false, disapproved: false });
   res.send(books);
 });
 
 router.get("/people_contributions", auth, async (req, res) => {
+  const books = await Book.find({ contributionType: "user" });
 
-  const books = await Book.find({contributionType:"user"});
-  
+  res.send(books);
+});
+
+router.get("/admin_contributions", auth, async (req, res) => {
+  const books = await Book.find({ contributionType: "admin" });
+
   res.send(books);
 });
 
 //get searched book
-router.post("/searched", auth, async (req, res) => {
-  console.log("reached here");
-  console.log(req.body);
+router.post("/searched", async (req, res) => {
+  // console.log("reached here");
+  // console.log(req.body);
   var book = await Book.find({ title: req.body.searchedVal });
-  console.log(book);
+  // console.log(book);
   res.send(book);
 });
 
 //get filtered books
-router.post("/filtered", auth, async (req, res) => {
-  console.log("reached here");
-  console.log(req.body);
+router.post("/filtered", async (req, res) => {
+  // console.log("reached here");
+  // console.log(req.body);
   var book = await Book.find(
     req.body.parentVal && req.body.subVal && req.body.genreVal
       ? {
@@ -97,7 +102,7 @@ router.post("/filtered", auth, async (req, res) => {
         }
       : ""
   );
-  console.log(book);
+  // console.log(book);
   res.send(book);
 });
 
@@ -106,8 +111,8 @@ router.get("/myaudiobooks", auth, async (req, res) => {
   var book = await Book.find({ user_id: req.user._id }).sort({
     date: "desc",
   });
-  console.log(book);
-  console.log("end");
+  // console.log(book);
+  // console.log("end");
   if (book.length == 0) {
     book = null;
   }
@@ -117,13 +122,28 @@ router.get("/myaudiobooks", auth, async (req, res) => {
 
 //Show all the disapproved stories specific to person
 router.get("/myaudiobooks_disapproved", auth, async (req, res) => {
-  var book = await Book.find({ user_id: req.user._id, disapproved:true }).sort({
-    date: "desc",
-  }).limit(9);
-  console.log(book);
-  console.log("end");
+  var book = await Book.find({ user_id: req.user._id, disapproved: true }).sort(
+    {
+      date: "desc",
+    }
+  );
+  // console.log(book);
+  // console.log("end");
   if (book.length == 0) {
     book = null;
+  }
+  var user = req.user;
+  res.send(book);
+});
+//Show all the disapproved to person
+router.get("/disapproved_contributions", auth, async (req, res) => {
+  var book = await Book.find({ disapproved: true }).sort({
+    date: "desc",
+  });
+  console.log(book);
+  // console.log("end");
+  if (book.length == 0) {
+    book = [];
   }
   var user = req.user;
   res.send(book);
@@ -131,11 +151,15 @@ router.get("/myaudiobooks_disapproved", auth, async (req, res) => {
 
 //Show all the unapproved stories specific to person
 router.get("/myaudiobooks_unapproved", auth, async (req, res) => {
-  var book = await Book.find({ user_id: req.user._id, approved:false,disapproved:false }).sort({
+  var book = await Book.find({
+    user_id: req.user._id,
+    approved: false,
+    disapproved: false,
+  }).sort({
     date: "desc",
-  }).limit(9);
-  console.log(book);
-  console.log("end");
+  });
+  // console.log(book);
+  // console.log("end");
   if (book.length == 0) {
     book = null;
   }
@@ -145,11 +169,11 @@ router.get("/myaudiobooks_unapproved", auth, async (req, res) => {
 
 //Show all the approved stories specific to person
 router.get("/myaudiobooks_approved", auth, async (req, res) => {
-  var book = await Book.find({ user_id: req.user._id, approved:true }).sort({
+  var book = await Book.find({ user_id: req.user._id, approved: true }).sort({
     date: "desc",
   });
-  console.log(book);
-  console.log("end");
+  // console.log(book);
+  // console.log("end");
   if (book.length == 0) {
     book = null;
   }
@@ -199,19 +223,19 @@ router.post(
 router.put("/approve/:id", auth, async (req, res) => {
   const book = await Book.findById(req.params.id);
   book.approved = true;
+  book.disapproved = false;
   await book.save();
   res.send(book);
 });
 
 router.put("/disapprove/:id", auth, async (req, res) => {
   const book = await Book.findById(req.params.id);
-  
+
   book.disapproved = true;
   book.disapproval_message = req.body.message;
   await book.save();
   res.send(book);
 });
-
 
 router.put(
   "/:id",
@@ -221,12 +245,26 @@ router.put(
   async (req, res) => {
     console.log(req.body);
     const book = await Book.findById(req.params.id);
+    // if (
+    //   book.title === req.body.title &&
+    //   book.narrator === req.body.narrator &&
+    //   book.contributor === req.body.contributor &&
+    //   book.titleUrdu === req.body.titleUrdu &&
+    //   book.author === req.body.author &&
+    //   book.description === req.body.description &&
+    //   book.subCategory === req.body.subCategory &&
+    //   book.categories === req.body.categories &&
+    //   book.genre === req.body.genre
+      
+    // ) {
+    //   return res.status(400).send("there is nothing to change");
+    // }
     book.title = req.body.title;
     book.narrator = req.body.narrator;
     book.contributor = req.body.contributor;
     book.titleUrdu = req.body.titleUrdu;
     book.author = req.body.author;
-   
+
     if (req.file) {
       book.image = req.file.filename;
     }
